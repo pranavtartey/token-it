@@ -5,6 +5,15 @@ import { Outlet } from "react-router-dom";
 import "@radix-ui/themes/styles.css";
 import { Button, Theme, ThemePanel } from "@radix-ui/themes";
 import Navbar from "./components/Navbar/Navbar";
+import {
+  ConnectionProvider,
+  WalletProvider,
+} from "@solana/wallet-adapter-react";
+import {
+  WalletModalProvider,
+  WalletDisconnectButton,
+  WalletMultiButton,
+} from "@solana/wallet-adapter-react-ui";
 
 function App() {
   const [theme, setTheme] = useState(true);
@@ -17,10 +26,20 @@ function App() {
         grayColor="sand"
         radius="large"
       >
-        <Navbar theme={theme} setTheme={setTheme} />
-        <Suspense fallback={<div>Loding...</div>}>
-          <Outlet />
-        </Suspense>
+        <ConnectionProvider
+          endpoint={
+            "https://solana-devnet.g.alchemy.com/v2/CNAtFpCtGfjzf138vPcHDgRt9WFIj68s"
+          }
+        >
+          <WalletProvider wallets={[]} autoConnect>
+            <WalletModalProvider>
+              <Navbar theme={theme} setTheme={setTheme} />
+              <Suspense fallback={<div>Loding...</div>}>
+                <Outlet />
+              </Suspense>
+            </WalletModalProvider>
+          </WalletProvider>
+        </ConnectionProvider>
       </Theme>
     </>
   );

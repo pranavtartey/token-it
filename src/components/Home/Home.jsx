@@ -5,9 +5,11 @@ import { useInView } from "react-intersection-observer";
 import cloudBitcoinImage from "../../assets/cloud-bitcoin.png";
 import bitcoinStonksImage from "../../assets/bitcoin-stonks.png";
 import bitcoinBankImage from "../../assets/bitcoin-bank.png";
+import { useWallet } from "@solana/wallet-adapter-react";
 
 const Home = () => {
   const navigate = useNavigate();
+  const wallet = useWallet();
   const fadeInUp = {
     hidden: { opacity: 0, y: 50 },
     visible: {
@@ -43,6 +45,14 @@ const Home = () => {
     },
   ];
 
+  const createTokenHandler = () => {
+    wallet?.connected ? navigate("/create-token") : navigate("signin");
+  };
+
+  const mintTokenHandler = () => {
+    wallet?.connected ? navigate("/mint-token") : navigate("signin");
+  };
+
   return (
     <AnimatePresence>
       <motion.section
@@ -76,7 +86,10 @@ const Home = () => {
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 1 }}
         >
-          <Button className="bg-white text-blue-500 font-semibold px-6 py-3 rounded-lg  hover:bg-blue-100">
+          <Button
+            onClick={createTokenHandler}
+            className="bg-white text-blue-500 font-semibold px-6 py-3 rounded-lg  hover:bg-blue-100"
+          >
             Create a Token Mint
           </Button>
           <Button className="bg-white text-blue-500 font-semibold px-6 py-3 rounded-lg hover:bg-blue-100">
@@ -223,28 +236,28 @@ const Home = () => {
       </motion.section>
       {/* Start Creating Your Tokens Today */}
       <motion.section className=" bg-gradient-to-r from-blue-500 to-blue-700 py-8 sm:py-16">
-  <Container className="text-center max-w-lg sm:max-w-2xl md:max-w-4xl mx-auto px-4">
-    <Heading
-      className="font-bold text-white mb-4 sm:mb-6 text-xl sm:text-4xl md:text-5xl"
-      animate={{ opacity: 1 }}
-    >
-      Start Creating Your Tokens Today
-    </Heading>
-    <Text
-      as="p"
-      className="text-sm sm:text-xl text-white mb-6 sm:mb-8 max-w-md sm:max-w-lg md:max-w-xl mx-auto"
-    >
-      Whether you're a project owner, developer, or crypto enthusiast, Token-It makes token creation simple.
-    </Text>
-    <Button
-      className="bg-white text-blue-500 font-semibold px-4 py-2 sm:px-6 sm:py-3 rounded-lg hover:bg-blue-100"
-      onClick={() => navigate("/create-token")}
-    >
-      Create a Token Mint Now
-    </Button>
-  </Container>
-</motion.section>
-
+        <Container className="text-center max-w-lg sm:max-w-2xl md:max-w-4xl mx-auto px-4">
+          <Heading
+            className="font-bold text-white mb-4 sm:mb-6 text-xl sm:text-4xl md:text-5xl"
+            animate={{ opacity: 1 }}
+          >
+            Start Creating Your Tokens Today
+          </Heading>
+          <Text
+            as="p"
+            className="text-sm sm:text-xl text-white mb-6 sm:mb-8 max-w-md sm:max-w-lg md:max-w-xl mx-auto"
+          >
+            Whether you're a project owner, developer, or crypto enthusiast,
+            Token-It makes token creation simple.
+          </Text>
+          <Button
+            className="bg-white text-blue-500 font-semibold px-4 py-2 sm:px-6 sm:py-3 rounded-lg hover:bg-blue-100"
+            onClick={() => wallet?.connected ? navigate("/create-token") : navigate("signin")}
+          >
+            Create a Token Mint Now
+          </Button>
+        </Container>
+      </motion.section>
 
       {/* Frequently Asked Questions */}
       <motion.section className="min-h-screen bg-gray-100 dark:bg-gray-900 py-16">
