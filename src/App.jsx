@@ -35,7 +35,9 @@ function App() {
             <WalletModalProvider>
               <Navbar theme={theme} setTheme={setTheme} />
               <Suspense fallback={<div>Loding...</div>}>
-                <Outlet />
+                <AnimatePresence mode="wait">
+                    <Outlet />
+                </AnimatePresence>
               </Suspense>
             </WalletModalProvider>
           </WalletProvider>

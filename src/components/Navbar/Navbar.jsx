@@ -19,7 +19,7 @@ const Navbar = ({ theme, setTheme }) => {
       <Text
         size={"8"}
         weight={"bold"}
-        className="font-parisienne text-3xl bg-gradient-to-r from-blue-500 to-red-500 bg-clip-text text-transparent hover:cursor-default"
+        className="font-parisienne text-3xl bg-gradient-to-r from-blue-500 to-red-500 bg-clip-text text-transparent cursor-default"
       >
         token-it
       </Text>

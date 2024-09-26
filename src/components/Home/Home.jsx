@@ -54,11 +54,11 @@ const Home = () => {
   };
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       <motion.section
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
+        exit={{ opacity: 0, transition: { duration: 0.5 } }}
         className="min-h-screen bg-gradient-to-tl from-blue-500 flex flex-col justify-center items-center"
       >
         <motion.div
@@ -66,6 +66,7 @@ const Home = () => {
           initial={{ y: 25, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 1 }}
+          exit={{ y: -25, opacity: 0 }}
         >
           <Container className="p-4">
             <Heading size="3xl" className="text-white font-bold">
@@ -252,7 +253,9 @@ const Home = () => {
           </Text>
           <Button
             className="bg-white text-blue-500 font-semibold px-4 py-2 sm:px-6 sm:py-3 rounded-lg hover:bg-blue-100"
-            onClick={() => wallet?.connected ? navigate("/create-token") : navigate("signin")}
+            onClick={() =>
+              wallet?.connected ? navigate("/create-token") : navigate("signin")
+            }
           >
             Create a Token Mint Now
           </Button>

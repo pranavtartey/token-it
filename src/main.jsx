@@ -6,6 +6,7 @@ import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./components/Home/Home.jsx";
 import Signup from "./components/Signup/Signup.jsx";
+import CreateToken from "./components/CreateToken/CreateToken.jsx";
 
 const router = createBrowserRouter([
   {
@@ -20,6 +21,10 @@ const router = createBrowserRouter([
       {
         path: "/signin",
         element: <Signup />,
+      },
+      {
+        path: "/create-token",
+        element: <CreateToken />,
       },
     ],
   },
