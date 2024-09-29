@@ -27,16 +27,14 @@ function App() {
         radius="large"
       >
         <ConnectionProvider
-          endpoint={
-            "https://solana-devnet.g.alchemy.com/v2/CNAtFpCtGfjzf138vPcHDgRt9WFIj68s"
-          }
+          endpoint={import.meta.env.VITE_ALCHEMY_SOLANA_DEVNET_URL}
         >
           <WalletProvider wallets={[]} autoConnect>
             <WalletModalProvider>
               <Navbar theme={theme} setTheme={setTheme} />
               <Suspense fallback={<div>Loding...</div>}>
                 <AnimatePresence mode="wait">
-                    <Outlet />
+                  <Outlet />
                 </AnimatePresence>
               </Suspense>
             </WalletModalProvider>

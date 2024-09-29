@@ -6,15 +6,16 @@ import CreateTokenForm from "./CreateTokenForm";
 
 const CreateToken = () => {
   const [requestAirdrop, setRequestAirdrop] = useState(true);
-  
+
   return (
-    <AnimatePresence mode='wait'>
+    <AnimatePresence mode="wait">
       {requestAirdrop ? (
         <motion.section
           key="requestAirdrop"
           initial={{ y: 25, opacity: 0 }}
           animate={{ y: 0, opacity: 1, transition: { duration: 0.5 } }}
           exit={{ y: -25, opacity: 0, transition: { duration: 0.5 } }}
+          className="min-h-screen flex justify-center items-center bg-gradient-to-tl from-slate-950 to-slate-700"
         >
           <RequestAirdrop
             requestAirdrop={requestAirdrop}
@@ -27,8 +28,12 @@ const CreateToken = () => {
           initial={{ y: 25, opacity: 0 }}
           animate={{ y: 0, opacity: 1, transition: { duration: 0.5 } }}
           exit={{ y: -25, opacity: 0, transition: { duration: 0.5 } }}
+          className="min-h-screen flex justify-center items-center bg-gradient-to-tl from-slate-950 to-slate-700"
         >
-          <CreateTokenForm />
+          <CreateTokenForm
+            requestAirdrop={requestAirdrop}
+            setRequestAirdrop={setRequestAirdrop}
+          />
         </motion.section>
       )}
     </AnimatePresence>

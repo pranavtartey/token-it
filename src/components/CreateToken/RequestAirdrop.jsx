@@ -30,27 +30,25 @@ const RequestAirdrop = ({ requestAirdrop, setRequestAirdrop }) => {
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-gradient-to-tl from-slate-950 to-slate-700">
-      <Card className="h-60 flex flex-col justify-center items-center">
-        <Heading align={"center"} className="text-gray-300 cursor-default">
+    <Card className="h-60 flex flex-col justify-center items-center">
+      <Heading align={"center"} className="text-gray-300 cursor-default">
+        Request Airdrop
+      </Heading>
+      <Text
+        as="p"
+        align={"center"}
+        className="text-gray-400 cursor-default mb-4"
+      >
+        Low on SOL balance? We got you covered!
+      </Text>
+      <div className="flex justify-center items-center gap-2 mb-4">
+        <Button disabled={requestingAirdrop} onClick={airdropRequestHandler}>
           Request Airdrop
-        </Heading>
-        <Text
-          as="p"
-          align={"center"}
-          className="text-gray-400 cursor-default mb-4"
-        >
-          Low on SOL balance? We got you covered!
-        </Text>
-        <div className="flex justify-center items-center gap-2 mb-4">
-          <Button disabled={requestingAirdrop} onClick={airdropRequestHandler}>
-            Request Airdrop
-          </Button>
-          <Button onClick={nextHandler}>Next</Button>
-        </div>
-        <Text>{airdropMessage}</Text>
-      </Card>
-    </div>
+        </Button>
+        <Button onClick={nextHandler}>Next</Button>
+      </div>
+      <Text>{airdropMessage}</Text>
+    </Card>
   );
 };
 
