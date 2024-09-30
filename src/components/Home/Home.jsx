@@ -93,9 +93,9 @@ const Home = () => {
           >
             Create a Token Mint
           </Button>
-          <Button className="bg-white text-blue-500 font-semibold px-6 py-3 rounded-lg hover:bg-blue-100">
+          {/* <Button className="bg-white text-blue-500 font-semibold px-6 py-3 rounded-lg hover:bg-blue-100">
             Mint Your Token
-          </Button>
+          </Button> */}
         </motion.div>
       </motion.section>
       <motion.section className="min-h-screen bg-gray-100 dark:bg-gray-900 py-16">

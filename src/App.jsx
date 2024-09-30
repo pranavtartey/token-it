@@ -14,6 +14,7 @@ import {
   WalletDisconnectButton,
   WalletMultiButton,
 } from "@solana/wallet-adapter-react-ui";
+import { Toaster } from "sonner";
 
 function App() {
   const [theme, setTheme] = useState(true);
@@ -33,6 +34,7 @@ function App() {
             <WalletModalProvider>
               <Navbar theme={theme} setTheme={setTheme} />
               <Suspense fallback={<div>Loding...</div>}>
+                <Toaster richColors />
                 <AnimatePresence mode="wait">
                   <Outlet />
                 </AnimatePresence>

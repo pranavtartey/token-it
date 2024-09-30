@@ -1,9 +1,12 @@
 import { ArrowLeftIcon } from "@radix-ui/react-icons";
 import {
+  Avatar,
   Box,
   Button,
   Card,
+  Flex,
   Heading,
+  ScrollArea,
   Tabs,
   Text,
   TextField,
@@ -18,15 +21,21 @@ import {
   getAssociatedTokenAddress,
   getAssociatedTokenAddressSync,
   getMintLen,
+  getTokenMetadata,
   LENGTH_SIZE,
   TOKEN_2022_PROGRAM_ID,
   TYPE_SIZE,
 } from "@solana/spl-token";
 import { BaseSignInMessageSignerWalletAdapter } from "@solana/wallet-adapter-base";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { Keypair, SystemProgram, Transaction } from "@solana/web3.js";
+import {
+  Keypair,
+  PublicKey,
+  SystemProgram,
+  Transaction,
+} from "@solana/web3.js";
 import { UploadClient } from "@uploadcare/upload-client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 const CreateTokenForm = ({ requestAirdrop, setRequestAirdrop }) => {
@@ -41,6 +50,7 @@ const CreateTokenForm = ({ requestAirdrop, setRequestAirdrop }) => {
     image: "",
   });
   const [isCreating, setIsCreating] = useState(false);
+  const [token22s, setTokens22] = useState([]);
 
   const client = new UploadClient({
     publicKey: import.meta.env.VITE_UPLOADCARE_PUBLIC_KEY,
@@ -152,11 +162,11 @@ const CreateTokenForm = ({ requestAirdrop, setRequestAirdrop }) => {
       ).blockhash;
       transaction.partialSign(mintKeypair);
 
-      console.log("hello I am before send transaction")
+      console.log("hello I am before send transaction");
 
       await wallet.sendTransaction(transaction, connection);
 
-      console.log("I am after send transaction")
+      console.log("I am after send transaction");
       toast.success(
         `Token mint created at ${mintKeypair.publicKey.toBase58()}`
       );
@@ -172,20 +182,20 @@ const CreateTokenForm = ({ requestAirdrop, setRequestAirdrop }) => {
 
       const transaction2 = new Transaction().add(
         createAssociatedTokenAccountInstruction(
-          wallet.publicKey,
-          associatedToken,
-          wallet.publicKey,
-          mintKeypair.publicKey,
-          TOKEN_2022_PROGRAM_ID
+          wallet.publicKey, // Payer: The wallet that will pay the fees to create the associated token account
+          associatedToken, // The public key of the associated token account that is being created
+          wallet.publicKey, // Owner: The wallet that will own this associated token account
+          mintKeypair.publicKey, // The public key of the token mint for which this associated token account is being created
+          TOKEN_2022_PROGRAM_ID // Program ID for the Token-2022 program on Solana
         ),
         createMintToInstruction(
-          mintKeypair.publicKey,
-          associatedToken,
-          wallet.publicKey,
+          mintKeypair.publicKey, // Public key of the token mint from which the tokens will be minted
+          associatedToken, // The associated token account where the newly minted tokens will be deposited
+          wallet.publicKey, // The mint authority's public key; the wallet that has permission to mint tokens
           createTokenInputValue.totalSupply *
-            Math.pow(10, createTokenInputValue.decimals),
+            Math.pow(10, createTokenInputValue.decimals), // The amount of tokens to mint, adjusted for decimals
           [],
-          TOKEN_2022_PROGRAM_ID
+          TOKEN_2022_PROGRAM_ID // The ID of the program that handles this mint, in this case, the SPL Token 2022 Program
         )
       );
 
@@ -226,8 +236,65 @@ const CreateTokenForm = ({ requestAirdrop, setRequestAirdrop }) => {
       [name]: value,
     }));
   };
+
+  //Manage tokens section
+
+  useEffect(() => {
+    const fetchTokenAccounts = async () => {
+      if (!wallet?.publicKey) return;
+      try {
+        //fetch all the parsed token accounts by the wallet ublic key
+        const tokenMint22 = await connection.getParsedTokenAccountsByOwner(
+          wallet?.publicKey,
+          {
+            programId: TOKEN_2022_PROGRAM_ID,
+          }
+        );
+        console.log(tokenMint22);
+
+        const userTokens22 = await Promise.all(
+          tokenMint22.value.map(async (account) => {
+            const mintAddress = account.account.data.parsed.info.mint;
+            const balance =
+              account.account.data.parsed.info.tokenAmount.uiAmount;
+
+            const metaData = await getTokenMetadata(
+              connection,
+              new PublicKey(mintAddress),
+              "confirmed",
+              TOKEN_2022_PROGRAM_ID
+            );
+            console.log("meta data = ", metaData);
+            let imageUrl = "";
+            if (metaData) {
+              const response = await fetch(metaData.uri, { method: "GET" });
+              const data = await response.json();
+              console.log("Tis is the response data : ", data);
+              imageUrl = data.image;
+            }
+            return {
+              mintAddress,
+              balance,
+              name: metaData?.name || "Unknown Token 22",
+              symbol: metaData?.symbol || "UNK",
+              image:
+                imageUrl ||
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSg600Xa4ws6jp54kMDNGYF232lIhY51QJqEA&s",
+            };
+          })
+        );
+
+        setTokens22(userTokens22);
+        console.log("Your Tokens : ", userTokens22);
+      } catch (error) {
+        console.log("Something went wrong in the fetchTokenAccounts : ", error);
+      }
+    };
+    fetchTokenAccounts();
+  }, [wallet?.publicKey, connection]);
+
   return (
-    <Card>
+    <Card className="w-96">
       <button onClick={backHandler}>
         <ArrowLeftIcon />
       </button>
@@ -236,10 +303,10 @@ const CreateTokenForm = ({ requestAirdrop, setRequestAirdrop }) => {
           <Tabs.List>
             <Tabs.Trigger value="createToken">Create Token</Tabs.Trigger>
             <Tabs.Trigger value="manageToken">Manage Token</Tabs.Trigger>
-            <Tabs.Trigger value="sendToken">Send Token</Tabs.Trigger>
+            {/* <Tabs.Trigger value="sendToken">Send Token</Tabs.Trigger> */}
           </Tabs.List>
 
-          <Box pt="3">
+          <Box pt="3" className="">
             <Tabs.Content value="createToken">
               <Text size={"1"} className="text-gray-400 cursor-default">
                 Token Name
@@ -305,14 +372,47 @@ const CreateTokenForm = ({ requestAirdrop, setRequestAirdrop }) => {
             </Tabs.Content>
 
             <Tabs.Content value="manageToken">
-              <Text size="2">Access and update your documents.</Text>
+              <ScrollArea type="always" scrollbars="vertical" className="h-96">
+                <Box p="2" pr="8">
+                  <Heading size="4" mb="2" trim="start">
+                    Your Tokens
+                  </Heading>
+                  <Flex direction="column" gap="4">
+                    {token22s?.map((token, index) => (
+                      <Box key={index} maxWidth="240px">
+                        <Card>
+                          <Flex gap="3" align="center">
+                            <Avatar
+                              size="3"
+                              src={token.image}
+                              radius="full"
+                              fallback={token.symbol}
+                            />
+                            <Box>
+                              <Text as="div" size="2" weight="bold">
+                                {token.name}
+                              </Text>
+                              <Text as="span" size="2" color="gray">
+                                {token.balance}{" "}
+                              </Text>
+                              <Text as="span" size="2" color="gray">
+                                {token.symbol}
+                              </Text>
+                            </Box>
+                          </Flex>
+                        </Card>
+                      </Box>
+                    ))}
+                  </Flex>
+                </Box>
+              </ScrollArea>
             </Tabs.Content>
 
-            <Tabs.Content value="sendToken">
+            {/* <Tabs.Content value="sendToken">
               <Text size="2">
                 Edit your profile or update contact information.
               </Text>
-            </Tabs.Content>
+            </Tabs.Content> */}
           </Box>
         </Tabs.Root>
         {/* <div className="flex gap-3">
