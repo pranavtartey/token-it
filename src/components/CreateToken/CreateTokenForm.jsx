@@ -35,8 +35,10 @@ import {
   Transaction,
 } from "@solana/web3.js";
 import { UploadClient } from "@uploadcare/upload-client";
-import { useEffect, useState } from "react";
+import { AnimatePresence, motion, useInView } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import SendSelectedToken from "./SendSelectedToken";
 
 const CreateTokenForm = ({ requestAirdrop, setRequestAirdrop }) => {
   const { connection } = useConnection();
@@ -51,6 +53,10 @@ const CreateTokenForm = ({ requestAirdrop, setRequestAirdrop }) => {
   });
   const [isCreating, setIsCreating] = useState(false);
   const [token22s, setTokens22] = useState([]);
+  const [selectedToken, setSelectedToken] = useState();
+
+  const sendTokenRef = useRef(null);
+  const isSendTokenInView = useInView(sendTokenRef);
 
   const client = new UploadClient({
     publicKey: import.meta.env.VITE_UPLOADCARE_PUBLIC_KEY,
@@ -60,7 +66,13 @@ const CreateTokenForm = ({ requestAirdrop, setRequestAirdrop }) => {
     setRequestAirdrop(!requestAirdrop);
   };
 
-  const createOffchainMetaData = async (name, symbol, description, image) => {
+  const createOffchainMetaData = async (
+    name,
+    symbol,
+    description,
+    decimals,
+    image
+  ) => {
     console.log(
       "This is your token input value : ",
       JSON.stringify({
@@ -75,6 +87,7 @@ const CreateTokenForm = ({ requestAirdrop, setRequestAirdrop }) => {
       name, //name of the token
       symbol, //three letter symbol of the token
       description, //just some little bit of description
+      decimals,
       image, //the image url that your wallet will dislay if it supports the offchain meta data
     });
     //This meta data is the offchain meta data and will be uploaded elase where and the wallets and explorers that want the off chain meta data that will go to the uri section of your mint and get this meta data and display the name symbol and image from there(this is not important) priority is always given to the onChain data and that is the permanent one
@@ -104,6 +117,7 @@ const CreateTokenForm = ({ requestAirdrop, setRequestAirdrop }) => {
         createTokenInputValue.name,
         createTokenInputValue.symbol,
         createTokenInputValue.description,
+        createTokenInputValue.decimals,
         createTokenInputValue.image
       );
       const onChainMetaData = {
@@ -293,6 +307,8 @@ const CreateTokenForm = ({ requestAirdrop, setRequestAirdrop }) => {
     fetchTokenAccounts();
   }, [wallet?.publicKey, connection]);
 
+  const tokenSelectHandler = (token) => {};
+
   return (
     <Card className="w-96">
       <button onClick={backHandler}>
@@ -303,7 +319,7 @@ const CreateTokenForm = ({ requestAirdrop, setRequestAirdrop }) => {
           <Tabs.List>
             <Tabs.Trigger value="createToken">Create Token</Tabs.Trigger>
             <Tabs.Trigger value="manageToken">Manage Token</Tabs.Trigger>
-            {/* <Tabs.Trigger value="sendToken">Send Token</Tabs.Trigger> */}
+            <Tabs.Trigger value="sendToken">Send Token</Tabs.Trigger>
           </Tabs.List>
 
           <Box pt="3" className="">
@@ -380,7 +396,13 @@ const CreateTokenForm = ({ requestAirdrop, setRequestAirdrop }) => {
                   <Flex direction="column" gap="4">
                     {token22s?.map((token, index) => (
                       <Box key={index} maxWidth="240px">
-                        <Card>
+                        <Card
+                          onClick={() => {
+                            console.log(token);
+                            setSelectedToken(token);
+                          }}
+                          className="hover:scale-105 duration-150 hover:cursor-pointer"
+                        >
                           <Flex gap="3" align="center">
                             <Avatar
                               size="3"
@@ -389,13 +411,28 @@ const CreateTokenForm = ({ requestAirdrop, setRequestAirdrop }) => {
                               fallback={token.symbol}
                             />
                             <Box>
-                              <Text as="div" size="2" weight="bold">
+                              <Text
+                                className="cursor-pointer"
+                                as="div"
+                                size="2"
+                                weight="bold"
+                              >
                                 {token.name}
                               </Text>
-                              <Text as="span" size="2" color="gray">
+                              <Text
+                                className="cursor-pointer"
+                                as="span"
+                                size="2"
+                                color="gray"
+                              >
                                 {token.balance}{" "}
                               </Text>
-                              <Text as="span" size="2" color="gray">
+                              <Text
+                                className="cursor-pointer"
+                                as="span"
+                                size="2"
+                                color="gray"
+                              >
                                 {token.symbol}
                               </Text>
                             </Box>
@@ -408,11 +445,19 @@ const CreateTokenForm = ({ requestAirdrop, setRequestAirdrop }) => {
               </ScrollArea>
             </Tabs.Content>
 
-            {/* <Tabs.Content value="sendToken">
-              <Text size="2">
-                Edit your profile or update contact information.
-              </Text>
-            </Tabs.Content> */}
+            <Tabs.Content value="sendToken" ref={sendTokenRef}>
+              {selectedToken ? (
+                <SendSelectedToken token={selectedToken} />
+              ) : (
+                <Text
+                  className="text-gray-400 cursor-default"
+                  align={"center"}
+                  as="p"
+                >
+                  Please Select a token to send first from the manage tokens tab
+                </Text>
+              )}
+            </Tabs.Content>
           </Box>
         </Tabs.Root>
         {/* <div className="flex gap-3">
