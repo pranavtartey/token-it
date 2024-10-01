@@ -28,7 +28,9 @@ function App() {
         radius="large"
       >
         <ConnectionProvider
-          endpoint={import.meta.env.VITE_ALCHEMY_SOLANA_DEVNET_URL}
+          endpoint={
+            "https://solana-devnet.g.alchemy.com/v2/CNAtFpCtGfjzf138vPcHDgRt9WFIj68s"
+          }
         >
           <WalletProvider wallets={[]} autoConnect>
             <WalletModalProvider>
